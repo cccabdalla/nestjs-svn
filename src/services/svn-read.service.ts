@@ -54,8 +54,7 @@ export class SvnReadService extends SvnBaseService {
 
     if (!result.success) {
       this.logger.warn(`Info command failed: ${result.stderr}`);
-
-      return null;
+      return result.stderr;
     }
 
     return this.parseInfoOutput(result.stdout);
@@ -73,8 +72,7 @@ export class SvnReadService extends SvnBaseService {
 
     if (!result.success) {
       this.logger.warn(`Status command failed: ${result.stderr}`);
-
-      return [];
+      return result.stderr;
     }
 
     return this.parseStatusOutput(result.stdout);
@@ -92,8 +90,7 @@ export class SvnReadService extends SvnBaseService {
 
     if (!result.success) {
       this.logger.warn(`Log command failed: ${result.stderr}`);
-
-      return [];
+      return result.stderr;
     }
 
     return this.parseLogOutput(result.stdout);
@@ -111,8 +108,7 @@ export class SvnReadService extends SvnBaseService {
 
     if (!result.success) {
       this.handleListError(result.stderr, path, options);
-
-      return [];
+      return result.stderr;
     }
 
     return this.parseListOutput(result.stdout);
@@ -127,7 +123,10 @@ export class SvnReadService extends SvnBaseService {
     const [command, mergedOptions] = this.buildSvnArgs('cat', args, options);
 
     const result = await this.executeCommand(command, mergedOptions);
-
+    if (!result.success) {
+      this.logger.warn(`Log command failed: ${result.stderr}`);
+      return result.stderr;
+    }
     return result.stdout;
   }
 
@@ -140,7 +139,10 @@ export class SvnReadService extends SvnBaseService {
     const [command, mergedOptions] = this.buildSvnArgs('diff', args, options);
 
     const result = await this.executeCommand(command, mergedOptions);
-
+    if (!result.success) {
+      this.logger.warn(`Log command failed: ${result.stderr}`);
+      return result.stderr;
+    }
     return result.stdout;
   }
 
@@ -156,7 +158,12 @@ export class SvnReadService extends SvnBaseService {
 
     const [command, mergedOptions] = this.buildSvnArgs('export', args, optionsWithoutRepoUrl);
 
-    return this.executeCommand(command, mergedOptions);
+    const result = this.executeCommand(command, mergedOptions);
+    if (!result.success) {
+      this.logger.warn(`Log command failed: ${result.stderr}`);
+      return result.stderr;
+    }
+    return result.stdout
   }
 
   /**
